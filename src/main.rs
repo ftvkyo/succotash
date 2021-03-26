@@ -5,14 +5,33 @@ use async_std::task;
 
 mod analyze;
 
-fn init_logging(verbosity: usize) -> Result<(), Box<dyn std::error::Error>> {
+fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
     let level = match verbosity {
-        0 => log::LogLevelFilter::Info,
-        1 => log::LogLevelFilter::Debug,
-        _ => log::LogLevelFilter::Trace,
+        0 => log::LevelFilter::Info,
+        1 => log::LevelFilter::Debug,
+        _ => log::LevelFilter::Trace,
     };
 
-    Ok(pretty_logger::init_level(level)?)
+    let colors = fern::colors::ColoredLevelConfig::new()
+        .info(fern::colors::Color::Green);
+
+    fern::Dispatch::new()
+        // Based on fern's usage example
+        .format(move |out, message, record| {
+            out.finish(format_args!(
+                "{} {} [{}] {}",
+                chrono::Local::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+                record.target(),
+                colors.color(record.level()),
+                message
+            ))
+        })
+        .level(log::LevelFilter::Info)
+        .level_for(clap::crate_name!(), level)
+        .chain(std::io::stdout())
+        .apply()?;
+
+    Ok(())
 }
 
 fn get_args() -> clap::ArgMatches<'static> {
@@ -31,8 +50,7 @@ fn get_args() -> clap::ArgMatches<'static> {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = get_args();
-
-    let verbosity = args.values_of("v").map(|v| v.count()).unwrap_or(0);
+    let verbosity = args.args.get("v").map(|v| v.occurs).unwrap_or(0);
     init_logging(verbosity)?;
 
     match args.subcommand_name() {
@@ -44,8 +62,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .unwrap();
             task::block_on(analyze::run(dir.into()));
         }
-        Some(sub) => error!("Unknown subcommand {}.", sub),
-        None => error!("You haven't specified a subcommand. See help."),
+        Some(sub) => error!("Unknown subcommand '{}'", sub),
+        None => error!("You haven't specified a subcommand; see help"),
     };
 
     Ok(())

@@ -5,8 +5,9 @@ authors = ["Andrei Stepanenko <ftvkyo@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-log = "0.3.9"  # To match dependency of pretty_logger
-pretty_logger = "0.1.8"
+log = "0.4.14"
+fern = { version = "0.6.0", features = ["colored"] }
+chrono = "0.4.19"
 
 clap = "2.33.3"
 
