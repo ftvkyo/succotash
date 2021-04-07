@@ -25,24 +25,44 @@ pub fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
         _ => log::LevelFilter::Trace,
     };
 
+    let cute = match verbosity {
+        0 => true,
+        _ => false,
+    };
+
     let colors = fern::colors::ColoredLevelConfig::new()
         .info(fern::colors::Color::Green);
 
     fern::Dispatch::new()
         // Based on fern's usage example
         .format(move |out, message, record| {
-            out.finish(format_args!(
-                "{} {} [{}] {}",
-                chrono::Local::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
-                record.target(),
-                colors.color(record.level()),
-                message
-            ))
+            if cute {
+                out.finish(format_args!(
+                    "[{}] {}",
+                    colors.color(record.level()),
+                    message
+                ));
+            } else {
+                out.finish(format_args!(
+                    "{} {} [{}] {}",
+                    chrono::Local::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
+                    record.target(),
+                    colors.color(record.level()),
+                    message
+                ));
+            }
         })
         .level(log::LevelFilter::Info)
         .level_for(clap::crate_name!(), level)
+        .level_for(format!("lib{}", clap::crate_name!()), level)
         .chain(std::io::stdout())
         .apply()?;
+
+
+    info!("Using log level {}", level);
+    if cute {
+        info!("Using cute output mode");
+    }
 
     Ok(())
 }
