@@ -7,6 +7,7 @@ use async_std::fs;
 use async_std::prelude::*;
 
 pub mod img;
+pub mod img_features;
 
 /// Run the analysis on the given path.
 ///
@@ -21,21 +22,27 @@ async fn try_run(dir: async_std::path::PathBuf) -> Result<(), Box<dyn std::error
     while let Some(res) = entries.next().await {
         let entry = res?;
 
-        debug!("Synchronously opening image '{}'", entry.file_name().to_string_lossy());
-        let img = img::Img::load(entry.path())?;
-        debug!("Getting the lshash of image '{}'", entry.file_name().to_string_lossy());
-        let img_features = img::ImgFeatures::from(img);
+        debug!(
+            "Synchronously opening image '{}'",
+            entry.file_name().to_string_lossy()
+        );
+        let img_raw = img::ImgRaw::load(entry.path())?;
+        debug!(
+            "Getting the lshash of image '{}'",
+            entry.file_name().to_string_lossy()
+        );
+        let img = img::Img::from(img_raw);
 
         info!(
             "img '{}' has lshash of {}",
             entry.file_name().to_string_lossy(),
-            img_features.lshash
+            img.features.lshash
         );
 
         info!(
             "img '{}' has hue of {}",
             entry.file_name().to_string_lossy(),
-            img_features.hue
+            img.features.hue
         );
     }
 

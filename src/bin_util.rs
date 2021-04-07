@@ -2,7 +2,6 @@
 //!
 //! This file is in the library part to allow rustdoc example testing.
 
-
 /// Initialize fern logger with specified verbosity
 ///
 /// # Arguments
@@ -30,8 +29,7 @@ pub fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
         _ => false,
     };
 
-    let colors = fern::colors::ColoredLevelConfig::new()
-        .info(fern::colors::Color::Green);
+    let colors = fern::colors::ColoredLevelConfig::new().info(fern::colors::Color::Green);
 
     fern::Dispatch::new()
         // Based on fern's usage example
@@ -57,7 +55,6 @@ pub fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
         .level_for(format!("lib{}", clap::crate_name!()), level)
         .chain(std::io::stdout())
         .apply()?;
-
 
     info!("Using log level {}", level);
     if cute {
