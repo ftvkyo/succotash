@@ -23,13 +23,19 @@ async fn try_run(dir: async_std::path::PathBuf) -> Result<(), Box<dyn std::error
 
         debug!("Synchronously opening image '{}'", entry.file_name().to_string_lossy());
         let img = img::Img::load(entry.path())?;
-        debug!("Getting the imghash of image '{}'", entry.file_name().to_string_lossy());
-        let imghash = img::ImgHash::from(img);
+        debug!("Getting the lshash of image '{}'", entry.file_name().to_string_lossy());
+        let img_features = img::ImgFeatures::from(img);
 
         info!(
-            "img '{}' has imghash of {}",
+            "img '{}' has lshash of {}",
             entry.file_name().to_string_lossy(),
-            imghash.hash
+            img_features.lshash
+        );
+
+        info!(
+            "img '{}' has hue of {}",
+            entry.file_name().to_string_lossy(),
+            img_features.hue
         );
     }
 
