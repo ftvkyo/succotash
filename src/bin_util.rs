@@ -1,11 +1,24 @@
-#[macro_use]
-extern crate log;
+//! Utilities for the executable shipped with the succotash library.
+//!
+//! This file is in the library part to allow rustdoc example testing.
 
-use async_std::task;
 
-mod analyze;
-
-fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
+/// Initialize fern logger with specified verbosity
+///
+/// # Arguments
+///
+/// * `verbosity` - Level of verbosity to set. Higher value = more verbosity.
+///
+/// # Examples
+///
+/// ```
+/// # use libsuccotash::bin_util;
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// bin_util::init_logging(0)?; // Initialize logging with minimal verbosity.
+/// # Ok(())
+/// # }
+/// ```
+pub fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
     let level = match verbosity {
         0 => log::LevelFilter::Info,
         1 => log::LevelFilter::Debug,
@@ -34,7 +47,21 @@ fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn get_args() -> clap::ArgMatches<'static> {
+/// Generate argument parser and parse command line arguments with it
+/// Returns a struct with the args.
+///
+/// # Examples
+///
+/// Let's say cmdline is `binary_name -vv`
+/// ```
+/// # let matches = clap::App::new(clap::crate_name!())
+/// #     .arg_from_usage("-v... 'Verbosity'")
+/// #     .get_matches_from(["binary_name", "-vv"].iter());
+/// // let matches = bin_util::get_args();
+/// let verbosity = matches.args.get("v").map(|v| v.occurs).unwrap_or(0);
+/// assert_eq!(verbosity, 2);
+/// ```
+pub fn get_args() -> clap::ArgMatches<'static> {
     clap::App::new(clap::crate_name!())
         .name(clap::crate_name!())
         .version(clap::crate_version!())
@@ -46,25 +73,4 @@ fn get_args() -> clap::ArgMatches<'static> {
                 .arg_from_usage("<DIR> 'Sets the directory to analyze'"),
         )
         .get_matches()
-}
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = get_args();
-    let verbosity = args.args.get("v").map(|v| v.occurs).unwrap_or(0);
-    init_logging(verbosity)?;
-
-    match args.subcommand_name() {
-        Some("analyze") => {
-            let dir = args
-                .subcommand_matches("analyze")
-                .unwrap()
-                .value_of("DIR")
-                .unwrap();
-            task::block_on(analyze::run(dir.into()));
-        }
-        Some(sub) => error!("Unknown subcommand '{}'", sub),
-        None => error!("You haven't specified a subcommand; see help"),
-    };
-
-    Ok(())
 }

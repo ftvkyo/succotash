@@ -26,6 +26,21 @@ async fn run_impl(dir: async_std::path::PathBuf) -> Result<(), Box<dyn std::erro
     Ok(())
 }
 
+/// Run the analysis on the given path.
+///
+/// Wraps around `run_impl` to avoid error propagation to the calling function.
+/// You can think of it as of `main` of the `analyze` subcommand.
+///
+/// # Arguments
+///
+/// * `dir` - Where to run the analysis.
+///
+/// # Examples
+///
+/// ```no_run
+/// # use libsuccotash::analyze;
+/// analyze::run("/home/user/Pictures".into());
+/// ```
 pub async fn run(dir: async_std::path::PathBuf) {
     match run_impl(dir).await {
         Ok(_) => debug!("Done 'analyze'"),
