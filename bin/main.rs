@@ -1,4 +1,5 @@
 /// This is main.
+///
 /// See [`libsuccotash`] for implementation details.
 /// See [`libsuccotash::bin_util`] for things related to the executable.
 fn main() -> Result<(), Box<dyn std::error::Error>> {

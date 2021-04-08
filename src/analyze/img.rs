@@ -1,6 +1,9 @@
+//! Implementation of internally-used image structures.
+
 use super::img_features;
 
-/// Image -- path to it and its contents.
+/// Image - path to it and its contents.
+///
 /// Convert to [`Img`] to make useful.
 pub struct ImgRaw<P>
 where
@@ -38,14 +41,19 @@ where
     }
 }
 
-/// Like [`Img`] but with features and without content.
+/// An image and its features.
+///
+/// The "final" image structure you probably want to work with.
 /// Has fields that describe features of the image.
 /// Use From/Into to convert [`Img`] into this.
 pub struct Img<P>
 where
     P: AsRef<std::path::Path>,
 {
+    /// The original image we find features of.
     pub raw: ImgRaw<P>,
+    /// Features of the image.
+    /// See [`img_features`] for details.
     pub features: img_features::ImgFeatures,
 }
 

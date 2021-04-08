@@ -24,10 +24,7 @@ pub fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
         _ => log::LevelFilter::Trace,
     };
 
-    let cute = match verbosity {
-        0 => true,
-        _ => false,
-    };
+    let cute = matches!(verbosity, 0);
 
     let colors = fern::colors::ColoredLevelConfig::new().info(fern::colors::Color::Green);
 
@@ -64,7 +61,8 @@ pub fn init_logging(verbosity: u64) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Generate argument parser and parse command line arguments with it
+/// Generate argument parser and parse command line arguments with it.
+///
 /// Returns a struct with the args.
 ///
 /// # Examples
