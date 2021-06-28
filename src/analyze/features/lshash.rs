@@ -1,12 +1,6 @@
-//! Image features.
-//!
-//! Various features of images that can narrow down a dataset that
-//! a search can be performed on. Some of the features can be used
-//! to sort the dataset, others don't. See documentation to learn.
+//! TODO
 
 use std::convert::TryFrom;
-
-use super::img::ImgRaw;
 
 /// Locality-sensitive hash of an image.
 ///
@@ -124,109 +118,6 @@ impl PartialOrd for LsHash {
             Some(std::cmp::Ordering::Greater)
         } else {
             None
-        }
-    }
-}
-
-/// Hue of an image, in degrees, normalized.
-///
-/// Can be used as a key for sorting in a regular way.
-/// This hue may be calculated in a weird way, don't rely on it
-/// to be generated in some potentially existing standard way.
-///
-/// We make sure to limit the angle with [0, 360) by normalizing
-/// the value on creation.
-#[derive(PartialEq, PartialOrd, Debug)]
-pub struct Hue(f64);
-
-impl std::fmt::Display for Hue {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{:?}", self))
-    }
-}
-
-impl Hue {
-    pub fn new(a: angle::Deg<f64>) -> Self {
-        use angle::Angle;
-        Self(a.normalize().scalar())
-    }
-
-    /// Find [`Hue`] of an image.
-    ///
-    /// # Arguments
-    ///
-    /// * `original` - the image to find [`Hue`] for.
-    pub fn find(original_rgb: &image::RgbImage) -> Self {
-        use prisma::FromColor;
-
-        // Find mean color and then extract its hue in the HSV color space.
-        let mut color_rgb = (0., 0., 0.);
-        let original_rgb_bytes = original_rgb.as_raw();
-        let pixels = original_rgb_bytes.len() / 3;
-        for i in 0..pixels {
-            color_rgb = (
-                color_rgb.0 + original_rgb_bytes[i] as f64,
-                color_rgb.1 + original_rgb_bytes[i + 1] as f64,
-                color_rgb.2 + original_rgb_bytes[i + 2] as f64,
-            );
-        }
-        let color_rgb = prisma::Rgb::new(
-            color_rgb.0 / pixels as f64,
-            color_rgb.1 / pixels as f64,
-            color_rgb.2 / pixels as f64,
-        );
-        let color_hsv = prisma::Hsv::from_color(&color_rgb);
-        let hue = color_hsv.hue();
-
-        Hue::new(hue)
-    }
-}
-
-/// Features of an image.
-///
-/// Can be used as a key when sorting a number of images
-/// to later use binary search on these images.
-///
-/// Has more than one feature, when sorting,
-/// higher features have higher priority.
-///
-/// # Examples
-///
-#[derive(PartialEq, PartialOrd)]
-pub struct ImgFeatures {
-    /// Locality-sensitive hash of the image.
-    pub lshash: LsHash,
-    /// Hue characteristic of the image.
-    pub hue: Hue,
-}
-
-impl ImgFeatures {
-    /// Find ImgFeatures for a given Image.
-    ///
-    /// # Arguments
-    ///
-    /// * `original` - image to find the features for.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use libsuccotash::analyze::img::ImgRaw;
-    /// # use libsuccotash::analyze::img_features::ImgFeatures;
-    /// let img_raw = ImgRaw {
-    ///     path: "/home/user/pic.png",
-    ///     data: image::DynamicImage::ImageRgb8(image::RgbImage::new(32, 32)),
-    /// };
-    /// let img_features = ImgFeatures::find(&img_raw);
-    /// ```
-    pub fn find<P>(original: &ImgRaw<P>) -> Self
-    where
-        P: AsRef<async_std::path::Path>,
-    {
-        let original_rgb = original.data.to_rgb8();
-
-        Self {
-            lshash: LsHash::find(&original_rgb),
-            hue: Hue::find(&original_rgb),
         }
     }
 }

@@ -1,6 +1,6 @@
 //! Implementation of internally-used image structures.
 
-use super::img_features;
+use super::features;
 
 /// Image - path to it and its contents.
 ///
@@ -56,8 +56,8 @@ where
     /// The original image we find features of.
     pub path: P,
     /// Features of the image.
-    /// See [`img_features`] for details.
-    pub features: img_features::ImgFeatures,
+    /// See [`features`] for details.
+    pub features: features::ImgFeatures,
 }
 
 impl<P> From<ImgRaw<P>> for Img<P>
@@ -66,7 +66,7 @@ where
 {
     fn from(original: ImgRaw<P>) -> Img<P> {
         Img {
-            features: img_features::ImgFeatures::find(&original),
+            features: features::ImgFeatures::find(&original),
             path: original.path,
         }
     }

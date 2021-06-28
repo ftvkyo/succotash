@@ -7,7 +7,7 @@ use async_std::fs;
 use async_std::prelude::*;
 
 pub mod img;
-pub mod img_features;
+pub mod features;
 
 /// Run the analysis on the given path.
 ///
