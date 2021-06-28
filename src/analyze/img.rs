@@ -54,7 +54,7 @@ where
     P: AsRef<async_std::path::Path>,
 {
     /// The original image we find features of.
-    pub raw: ImgRaw<P>,
+    pub path: P,
     /// Features of the image.
     /// See [`img_features`] for details.
     pub features: img_features::ImgFeatures,
@@ -67,7 +67,7 @@ where
     fn from(original: ImgRaw<P>) -> Img<P> {
         Img {
             features: img_features::ImgFeatures::find(&original),
-            raw: original,
+            path: original.path,
         }
     }
 }
