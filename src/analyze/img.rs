@@ -7,7 +7,7 @@ use super::img_features;
 /// Convert to [`Img`] to make useful.
 pub struct ImgRaw<P>
 where
-    P: AsRef<std::path::Path>,
+    P: AsRef<async_std::path::Path>,
 {
     /// Path to where the image was loaded from
     pub path: P,
@@ -18,7 +18,7 @@ where
 
 impl<P> ImgRaw<P>
 where
-    P: AsRef<std::path::Path>,
+    P: AsRef<async_std::path::Path>,
 {
     /// Load an image from a given path.
     ///
@@ -35,8 +35,11 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    pub fn load(path: P) -> Result<Self, Box<dyn std::error::Error>> {
-        let data = image::io::Reader::open(path.as_ref())?.decode()?;
+    pub async fn load(path: P) -> Result<Self, Box<dyn std::error::Error>> {
+        let data_raw = async_std::fs::read(path.as_ref()).await?;
+        let data = image::io::Reader::new(std::io::Cursor::new(data_raw))
+            .with_guessed_format()?
+            .decode()?;
         Ok(Self { path, data })
     }
 }
@@ -48,7 +51,7 @@ where
 /// Use From/Into to convert [`Img`] into this.
 pub struct Img<P>
 where
-    P: AsRef<std::path::Path>,
+    P: AsRef<async_std::path::Path>,
 {
     /// The original image we find features of.
     pub raw: ImgRaw<P>,
@@ -59,7 +62,7 @@ where
 
 impl<P> From<ImgRaw<P>> for Img<P>
 where
-    P: AsRef<std::path::Path>,
+    P: AsRef<async_std::path::Path>,
 {
     fn from(original: ImgRaw<P>) -> Img<P> {
         Img {

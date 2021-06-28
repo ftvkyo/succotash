@@ -23,10 +23,10 @@ async fn try_run(dir: async_std::path::PathBuf) -> Result<(), Box<dyn std::error
         let entry = res?;
 
         debug!(
-            "Synchronously opening image '{}'",
+            "Asynchronously opening image '{}'",
             entry.file_name().to_string_lossy()
         );
-        let img_raw = img::ImgRaw::load(entry.path())?;
+        let img_raw = img::ImgRaw::load(entry.path()).await?;
         debug!(
             "Getting the lshash of image '{}'",
             entry.file_name().to_string_lossy()

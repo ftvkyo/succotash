@@ -220,7 +220,7 @@ impl ImgFeatures {
     /// ```
     pub fn find<P>(original: &ImgRaw<P>) -> Self
     where
-        P: AsRef<std::path::Path>,
+        P: AsRef<async_std::path::Path>,
     {
         let original_rgb = original.data.to_rgb8();
 
